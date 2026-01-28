@@ -1,0 +1,140 @@
+10 minutes 1/8/2026
++17 more minutes planning
+27 total.
+Decided to make a jigsaw puzzle game.
+
+snakeglasses2.jpg is 500 wide/550 high
+
+1.5 hour of class+after class 1/12/2026
+Installed ImageProcessor, documentation at:
+https://jimbobsquarepants.github.io/ImageProcessor/imageprocessor/imagefactory/
+
+1/14/2026 12:13pm-12:37pm, 3:15pm-5:52pm, 6:26pm-7:09pm, total 224 minutes/3hr44min
+Idea: do as little in the form as possible. Process everything underneath; the form will never need
+to know that there are multiple pieces, I'll assemble the pieces into a singular bitmap, which btw
+should guarentee everything renders correctly, and that singular bitmap will be what is displayed.
+I'm going to need a blank image to repeatedly overlay the puzzle pieces onto. Ultimately, it will
+need to be larger than the final area of the finished puzzle.
+Gentlemen, I believe I have found a use case for bubble sort.
+I'm going to make a dictionary(?) that pairs the piece IDs to the order in which they are rendered.
+Clicking a piece will make it priority #1, so it will need to bubble up.
+Ideas for handling mouse input:
+	Click piece to select, click to put in new place.
+	Click piece to begin dragging, click again to stop dragging.
+	Click and hold to drag piece.
+In any case, I don't need to refresh continually, only when the mouse moves or clicks.
+
+1/15/2026 11:17am-12:42pm, 2 minute break, 1hr23min
+
+1/16/2026 11:31pm-1:13am, 1:20am-ish (amish??) to 2:20am, 1hr42min total, 1.7hr
+Three problems to solve:
+1. Detect that a snap should happen (done!)
+2. Apply an offset when the snap happens (done!)
+3. Drag pieces along for the ride (done!)
+Fixed a very confusing bug. Was assigning x and y to pieces by /ing and %ing by y instead of x.
+Discovered an even more confusing bug. If I bind A+B, and then B+C, 
+C drags A&B, B drags A, and A drags nothing.
+Update: It's because I tried to be lazy, and put a condition that belonged in an if statement,
+in a for loop instead, causing it to terminate early
+New problem: when snapping two groups together, the cow snaps without its herd,
+breaking the alignment. I need to tempt twice??
+TODO: Fix snapping
+
+total time so far: 8.76
+time remaining: 3.24 hours, or 3hr14min. PI? What are you doing here?
+1/17/2026 10:21am-10:31am, 12:58pm-1:58pm, 2hr4min to go, 2:33-4:37
+I moved a floating piece to bind it to a group and the group moved.
+I started with 11 and bound the other 14 upward and eastward, and it worked perfectly!
+Accidentally added multi-snapping, which is cool, but I would need to apply the first
+snap to whatever got snapped second, I think?
+Nope! After thinking about this for what feels like an hour, I just needed to reset ranch
+after every direction does its thing.
+Bug detected! When combining group A into group B, the pieces in A are told they are in group B,
+right before A gets deleted and B becomes A. I think I fixed it by clearing A instead of deleting it.
+
+
+1/24/2026 12:00am-2:50am
+Currently reading my dad's email for tips.
+Did a *massive* cleanup of the code to get rid of global variables. I hope it was worth it.
+At the very least, I found myself deleting the 'new Point()' text in a lot of places where I
+was moving things
+Currently, if I click the top left piece of a conglomorate, it behaves as expected (except that
+it's blank)
+oh my gosh I was calling piece.GetPos().X instead of piece.GetX() again. The mega-cow works.
+The problem now is that it always snaps to the mouse in a way that only makes sense if I'm clicking
+the top left corner. I was trying to explain that earlier but didn't finish. Hang on this still isn't
+clear enough. Let's say my conglomorate is this:
+ O
+OOO
+OO
+I click the middle one. I expect to see:
+ O 
+OMO
+OO
+(where M is the mouse)
+Instead I see:
+MO
+OOO
+OO
+I need to account for the correct piece being the anchor for the cow somehow.
+Weirdly, the position within the piece is preserved, so that's one less bug to fix.
+Fixed a lot of bugs without bothering to document intermediate states. The important thing now
+is that the cow is working perfectly except for transparency. I converted all the files to .png
+so they can support transparency, that didn't fix it. The only thing in the rectangle right now
+is a fully transparent section of the original puzzle image. It looks like the windows form
+may be the bottleneck here. I might have to refactor this to work with puzzle pieces that
+are all individual objects.
+
+
+1/26 3:46-4:11
+I need to consider not using a windows form anymore, because the transparancy issue
+is pretty bad. Especially because, once this isn't just a novelty, the standard strategy
+is to start by building the frame.
+
+1/27 5:05-
+
+TODO LIST:
+Expand cow
+Non-rectangular pieces
+Thank Amanda for not being avoidant
+But also are you mad at me? Still not planning wedding?
+
+LONG TERM:
+the canvas Bitmap I have created could possibly be masked as a way to efficiently move
+conglomorates around
+If nothing else works, I could crop the pieces too large, and overlay them with a hollow
+white shell of a piece with a transparent center, then make the white part transparent again.
+
+
+
+
+  Stage 1:
+a. I will need to access rectangular sections of the source image and use
+   them to paint the pieces, and something more complicated to deal with the nubs.
+   A good prototype would be to start with square pieces.
+   I expect this to be by far the most difficult part. I need to learn more about image manipulation.
+b. I need pieces to render in a set order to prevent z-fighting or similar unpredictable rendering behavior.
+c. I need to detect a piece being clicked and dragged, including bringing it to the top rendering layer
+d. I need to set bounds on how far the pieces can go, so the user doesn't drag anything off-screen.
+  Stage 2:
+a. I will need to, at every boundry between pieces, randomly decide whether the nub should
+   point up/down or left/right. 
+  Stage 3:
+a. I will need every piece to know the identities of all four of its neighbors
+b. I will need to detect if a piece that the user just finished dragging is close enough to one
+   of its true neighbors to justify snapping them together.
+c. I will need to snap pieces together.
+d. I don't think I will need to update neighbor logic when pieces snap, so long as groups of pieces
+   retain their individual IDs under the hood.
+e. There may be edge cases when groups of pieces snap to individual or other groups of pieces
+  Stage 4:
+a. I need to detect a completed puzzle
+b. I should handle various image resolutions without freaking out when the dimensions aren't cleanly divisible.
+c. I should add a proper GUI to act as a menu to allow users to select images and piece counts.
+d. I could add a stats tracker or a profile system to remember what a user has accomplished.
+e. I should add a way for the user to return to the menu, before or after completing a puzzle
+f. I should add a save feature that will serialize the state of the board.
+   Either have unlimited save states or commit to a specific limit on the number.
+   That raises questions about how the program will know which file to read, or even that there
+   is anything to be loaded at all.
+g. Deserialization shouldn't be too bad, I think.

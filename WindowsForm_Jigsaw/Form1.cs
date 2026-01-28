@@ -52,12 +52,12 @@ namespace WindowsForm_Jigsaw
             InitializeDictionary();
             InitializeCanvas();
             puzzleBox.Image = background;
-            puzzleBox.BackColor = Color.Transparent;
+            //puzzleBox.BackColor = Color.Transparent;
             //puzzleBox.Controls.Add(cowBox); this adds transparency, but like... um... it's not worth it.
 
             MovePieces();
-            //TestSetup();
-            RenderPuzzle();
+            TestSetup();
+            //RenderPuzzle();
         }
 
         private void MovePieces()
@@ -117,7 +117,7 @@ namespace WindowsForm_Jigsaw
             // in case I decide that drag-and-drop was a mistake
         }
 
-        private void puzzleBox_MouseUp(object sender, MouseEventArgs e)
+        public void puzzleBox_MouseUp(object sender, MouseEventArgs e)
         {
             // put down the piece we were holding, if any
             if (!selectedPiece)
@@ -144,14 +144,15 @@ namespace WindowsForm_Jigsaw
                 }
             } // it's that easy
 
-            RenderPuzzle();
+            //RenderPuzzle();
+            cow.Visible = true;
             cowBox.Visible = false;
             cowBox.SendToBack();
             cowBorder.SendToBack();
             statusMessage.Text = cow.GetPos().ToString();
         }
 
-        private void puzzleBox_MouseDown(object sender, MouseEventArgs e)
+        public void puzzleBox_MouseDown(object sender, MouseEventArgs e)
         {
             if (selectedPiece)
             {
@@ -187,7 +188,8 @@ namespace WindowsForm_Jigsaw
 
             if (selectedPiece)
             {
-                RenderPuzzle(cow);
+                //RenderPuzzle(cow);
+                cow.Visible = false;
                 cowBox.Visible = true;
                 if (!PrepareCanvas())
                 {   // PrepareCanvas() does this automatically, if it returns true
@@ -210,7 +212,7 @@ namespace WindowsForm_Jigsaw
             }
         }
 
-        private void puzzleBox_MouseMove(object sender, MouseEventArgs e)
+        public void puzzleBox_MouseMove(object sender, MouseEventArgs e)
         {
             if (!selectedPiece)
                 // this line of code will probably run more than any other
@@ -530,6 +532,11 @@ namespace WindowsForm_Jigsaw
             // this might be the wrong place to right it?
             // maybe anything here will execute WITH the default code
             // rather than REPLACING it?
+        }
+
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            string testMe = "hi again";
         }
     }
 }

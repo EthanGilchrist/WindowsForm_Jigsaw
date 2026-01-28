@@ -91,6 +91,7 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             ((System.ComponentModel.ISupportInitialize)(this.cowBorder)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.puzzleBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cowBox)).EndInit();

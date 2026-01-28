@@ -277,7 +277,11 @@ namespace WindowsForm_Jigsaw
                                    .Save(outStream);
                         }
                         pieces[i] = new Piece(new Bitmap(outStream), i % x, i / x);
-                        //parent.Controls.Add(pieces[i]);
+                        pieces[i].MouseDown += new System.Windows.Forms.MouseEventHandler(pieces[i].Piece_MouseDown);
+                        pieces[i].MouseUp += new MouseEventHandler(pieces[i].Piece_MouseUp);
+                        pieces[i].MouseMove += new MouseEventHandler(pieces[i].Piece_MouseMove);
+                        // is that allowed?
+                        parent.Controls.Add(pieces[i]);
                     }
                 }
             }

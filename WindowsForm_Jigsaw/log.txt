@@ -91,7 +91,32 @@ I need to consider not using a windows form anymore, because the transparancy is
 is pretty bad. Especially because, once this isn't just a novelty, the standard strategy
 is to start by building the frame.
 
+
 1/27 5:05-
+Created Git repo for this project. This version should only have features in a stable form.
+The cow is enlarged but not transparent.
+commenting line 60
+
+OK. Ok. Ok ok ok. I had to do some weird stuff, Form1 is now a public static field in Program.cs?
+And the event handlers are public, so that Piece.cs can just instantly pass click events BACK
+into Form1.cs where they belong? This can't be the way a normal person would solve this problem,
+but what else am I going to do, put a while loop in Form1.cs just waiting around to see if
+any of the pieces event handlers have fired? That's stupid! There has to be some third
+way that makes sense for child object's event handlers to "wake up" their parent objects.
+New bugs: The cowbox is pretty much obsolete now, I'm having a hard time predicting how
+difficult it will be to switch over the code to not use it. Maybe there will be a conceptual
+cowbox, but at the last second instead of rendering it, I simply... won't?
+I should also switch to dragging other members of the conglomorate in real time, instead of...
+whatever is currently going on. Is it bad that I've lost track?
+I'm going to push, and then delete the cowbox entirely, and if that turns out to be too drastic, I'll
+google how to use Git to undo your bad decisions. By the way, dad, this is part of the reason I
+forget that Git exists. I've never used it's pretty important feature of archiving 
+previous iterations of code.
+
+
+
+
+
 
 TODO LIST:
 Expand cow

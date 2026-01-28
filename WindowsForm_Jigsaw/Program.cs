@@ -10,6 +10,7 @@ namespace WindowsForm_Jigsaw
 {
     static class Program
     {
+        public static Form1 form;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -18,7 +19,8 @@ namespace WindowsForm_Jigsaw
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            form = new Form1();
+            Application.Run(form);
             //Bitmap image = new Bitmap("snakeglasses2.jpg");
             // I don't think anything here after Application.Run();
             // ever gets run

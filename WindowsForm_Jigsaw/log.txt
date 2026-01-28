@@ -92,7 +92,7 @@ is pretty bad. Especially because, once this isn't just a novelty, the standard 
 is to start by building the frame.
 
 
-1/27 5:05-
+1/27 5:05-6:54
 Created Git repo for this project. This version should only have features in a stable form.
 The cow is enlarged but not transparent.
 commenting line 60
@@ -113,6 +113,12 @@ google how to use Git to undo your bad decisions. By the way, dad, this is part 
 forget that Git exists. I've never used it's pretty important feature of archiving 
 previous iterations of code.
 
+Everything works! The only problem is when I drag things around, it's messy.
+I wonder if I can fix that...
+
+
+1/28 1:46-?:??
+The jitter gets worse the more pieces are stitched together.
 
 
 

@@ -28,7 +28,6 @@ namespace WindowsForm_Jigsaw
         const int y = 5;
 
         Bitmap background;
-        Bitmap canvas;
         byte[] photoBytes;
         Puzzle puzzle;
         Random rand;
@@ -50,13 +49,12 @@ namespace WindowsForm_Jigsaw
             selectedPiece = false;
             prioritizer = new Dictionary<int, int>();
             InitializeDictionary();
-            InitializeCanvas();
             puzzleBox.Image = background;
             //puzzleBox.BackColor = Color.Transparent;
             //puzzleBox.Controls.Add(cowBox); this adds transparency, but like... um... it's not worth it.
 
             MovePieces();
-            TestSetup();
+            //TestSetup();
             //RenderPuzzle();
         }
 
@@ -146,8 +144,8 @@ namespace WindowsForm_Jigsaw
 
             //RenderPuzzle();
             cow.Visible = true;
-            cowBox.Visible = false;
-            cowBox.SendToBack();
+            //cowBox.Visible = false;
+            //cowBox.SendToBack();
             cowBorder.SendToBack();
             statusMessage.Text = cow.GetPos().ToString();
         }
@@ -175,6 +173,15 @@ namespace WindowsForm_Jigsaw
                 {
                     selectedPiece = true;
                     cow = puzzle.GetPieces()[prioritizer[i]];
+                    cow.BringToFront();
+                    if (cow.GetGroupID() != -1)
+                    {
+                        List<Piece> conglomorate = puzzle.GetConglomorates()[cow.GetGroupID()];
+                        for (int pieceIndex = 0; pieceIndex < conglomorate.Count(); pieceIndex++)
+                        {
+                            conglomorate[pieceIndex].BringToFront();
+                        }
+                    }
                     // this better be pass by value
                     ranch = cow.GetPos(); // ok seriously, is it?
                     BubbleSort(prioritizer[i]); // this is redundant if the if statement runs
@@ -186,30 +193,32 @@ namespace WindowsForm_Jigsaw
                 }
             }
 
-            if (selectedPiece)
-            {
-                //RenderPuzzle(cow);
-                cow.Visible = false;
-                cowBox.Visible = true;
-                if (!PrepareCanvas())
-                {   // PrepareCanvas() does this automatically, if it returns true
-                    cowBox.Image = cow.GetImage();     
-                    cowBox.Location = new Point(  
-                        cow.GetPos().X + puzzleBox.Location.X,
-                        cow.GetPos().Y + puzzleBox.Location.Y);
-                    cowBox.Size = cow.GetImage().Size;
-                }
-                cowBorder.BringToFront(); // bring border to front FIRST!
-                cowBox.BringToFront();
-                // activate the cow border
-                cowBorder.Visible = true;
-                cowBorder.Location = new Point(
-                    cowBox.Location.X - borderThickness,
-                    cowBox.Location.Y - borderThickness);
-                cowBorder.Size = new Size(
-                    cowBox.Width  + borderThickness * 2, 
-                    cowBox.Height + borderThickness * 2);
-            }
+            //if (selectedPiece)
+            //{
+            //    //RenderPuzzle(cow);
+            //    cow.Visible = false;
+            //    cowBox.Visible = true;
+            //    if (!PrepareCanvas())
+            //    {   // PrepareCanvas() does this automatically, if it returns true
+            //        cowBox.Image = cow.GetImage();     
+            //        cowBox.Location = new Point(  
+            //            cow.GetPos().X + puzzleBox.Location.X,
+            //            cow.GetPos().Y + puzzleBox.Location.Y);
+            //        cowBox.Size = cow.GetImage().Size;
+            //    }
+            //    cowBorder.BringToFront(); // bring border to front FIRST!
+            //    cowBox.BringToFront();
+            //    // activate the cow border
+            //    cowBorder.Visible = true;
+            //    cowBorder.Location = new Point(
+            //        cowBox.Location.X - borderThickness,
+            //        cowBox.Location.Y - borderThickness);
+            //    cowBorder.Size = new Size(
+            //        cowBox.Width  + borderThickness * 2, 
+            //        cowBox.Height + borderThickness * 2);
+            //}
+
+            if (selectedPiece) ranch = cow.Location;
         }
 
         public void puzzleBox_MouseMove(object sender, MouseEventArgs e)
@@ -217,42 +226,17 @@ namespace WindowsForm_Jigsaw
             if (!selectedPiece)
                 // this line of code will probably run more than any other
                 return;
+
+            // adding System.Threading.Thread.Sleep(10) before OR after this code
+            // makes the jitter way way worse. That's a clue though!
             // move selected piece to position of mouse
             cow.SetPos(e.Location.X - mouseOffset.X, e.Location.Y - mouseOffset.Y);
-            // e.Location is probably relative to the window. It BETTER not
-            // be relative to the monitor.
-            // nope! It's relative to the element! Let's goooo!
-            //cow.pos.X -= cow.image.Width / 2;
-            //cow.pos.Y -= cow.image.Height / 2;
-            cowBox.Location = new Point(
-                cow.GetPos().X + puzzleBox.Location.X - cowXOffset, 
-                cow.GetPos().Y + puzzleBox.Location.Y - cowYOffset);
-            cowBorder.Location = new Point(
-                cowBox.Location.X - borderThickness,
-                cowBox.Location.Y - borderThickness);
-            //cowBox.Location.Offset(puzzleBox.Location);
-            //RenderPuzzle();
-
-            // Ok. So. As expected, this was as slow as beans.
-            // but I have an idea. What if, I have a dedicated picture box
-            // just for the piece I'm currently moving, that turns invisible
-            // when it's not being moved?
-            // I would have to do a special render without the piece on MouseDown
-            // and then shrimply not render for any mousemove events
-            // and then render normally on mouseup
-            // the only hard part in terms of RenderPuzzle();
-            // is not rendering the abducted cow
-
-            // done lol
-
-            // cursed test:
-            //PictureBox cursedBox = new PictureBox();
-            //cursedBox.Size = cow.GetImage().Size;
-            //cursedBox.Location = new Point(rand.Next(100), rand.Next(100));
-            //cursedBox.Image = cow.GetImage();
-            //cursedBox.Visible = true;
-            //cursedBox.BringToFront();
-            //puzzleBox.Controls.Add(cursedBox); // oh no. it worked.
+            int dx = cow.Location.X - ranch.X;
+            int dy = cow.Location.Y - ranch.Y;
+            ranch = cow.Location;
+            puzzle.Tempt(cow, dx, dy);
+            //System.Threading.Thread.Sleep(10);
+            puzzleBox.Refresh(); // this fixed 90% of the problem even with .sleep enabled
         }
 
         private void Snap(Piece bull)
@@ -357,119 +341,6 @@ namespace WindowsForm_Jigsaw
             }
         }
 
-        private void InitializeCanvas()
-        {
-            photoBytes = File.ReadAllBytes(puzzleFile);
-            ISupportedImageFormat format = new PngFormat(); // note! this is a png now!
-
-            using (MemoryStream inStream = new MemoryStream(photoBytes))
-            {
-                using (MemoryStream outStream = new MemoryStream())
-                {
-                    using (ImageFactory factory = new ImageFactory())
-                    {
-                        factory.Load(inStream);
-                        factory.Alpha(0);
-                        factory.Format(format).Save(outStream);
-                    }
-                    canvas = new Bitmap(outStream);
-                }
-            }
-        }
-
-        public bool PrepareCanvas()
-        {
-            // IIRC this code is to create a larger cow
-            // it's a bad sign that a week is long enough for me to forget this much
-
-            // I'm going to make an executive decision to not worry about off-by-1 errors
-            // until the core functionality is in place
-
-            // alternate strategy: once the bounds of the cow are determined,
-            // crop that from the original image, then block out
-            // *missing* pieces with white squares
-            // that probably won't work without square-shaped pieces though
-
-            if (cow.GetGroupID() == -1)
-            {
-                cowXOffset = 0;
-                cowYOffset = 0;
-                return false; // return false if the cow is not part of a conglomorate
-            }
-
-            int minX = x;
-            int maxX = 0;
-            int minY = y;
-            int maxY = 0;
-
-            // the list of pieces that will be part of the mega-cow
-            List<Piece> pieces = puzzle.GetConglomorates()[cow.GetGroupID()];
-
-            // determine the bounds of the mega-cow
-            for (int i = 0; i < puzzle.GetConglomorates()[cow.GetGroupID()].Count(); i++)
-            {
-                if (pieces[i].GetX() > maxX)
-                    maxX = pieces[i].GetX();
-                if (pieces[i].GetX() < minX)
-                    minX = pieces[i].GetX();
-                if (pieces[i].GetY() > maxY)
-                    maxY = pieces[i].GetY();
-                if (pieces[i].GetY() < minY)
-                    minY = pieces[i].GetY();
-            }
-
-            photoBytes = File.ReadAllBytes(puzzleFile);
-            ImageLayer layer = new ImageLayer();
-            layer.Opacity = 100;
-            layer.Position = new Point(0, 0);
-            ISupportedImageFormat format = new PngFormat(); // note! this is a png now!
-
-            // I stole this from MouseDown(), it might come in handy here
-            //   cowBox.Location = new Point(
-            //cow.pos.X + puzzleBox.Location.X,
-            //cow.pos.Y + puzzleBox.Location.Y);
-
-            using (MemoryStream inStream = new MemoryStream(photoBytes))
-            {
-                using (MemoryStream outStream = new MemoryStream())
-                {
-                    using (ImageFactory factory = new ImageFactory())
-                    {
-                        factory.Load(inStream);
-                        factory.Alpha(0);
-                        factory.Crop(new Rectangle(new Point(0, 0), puzzle.CowSize(cow)));
-
-                        //List<Piece> pieces = puzzle.conglomorates[cow.groupID];
-                        foreach (Piece piece in pieces)
-                        {
-                            layer.Image = piece.GetImage();
-                            layer.Position = new Point( // there's nothing in the rule book that says I can't look at parantheses the same way I currently look at curly brackets
-                                (piece.GetX() - minX) * puzzle.GetWidth() / x, 
-                                (piece.GetY() - minY) * puzzle.GetHeight() / y
-                                );
-                            factory.Overlay(layer);
-                        }
-
-                        factory.Format(format).Save(outStream);
-                    }
-                    canvas = new Bitmap(outStream);
-                }
-            }
-
-            // enlarge the cow to contain the entire conglomorate
-            Size cowSize = puzzle.CowSize(cow);
-            cowBox.Size = cowSize; // I forgot I wrote a method for this...
-            cowBox.Image = canvas;
-
-            // Rewrite this to avoid off-by-one errors later. Use two sequential
-            // for loops if you have to (that's all I can think of anyway).
-            cowXOffset = (cow.GetX() - minX) * cowSize.Width / (maxX - minX + 1); // that + 1 had to come from the Spirit, noticing that that error was occuring without spending 20 minutes wondering what it could be was too perfect to be anything else
-            cowYOffset = (cow.GetY() - minY) * cowSize.Height / (maxY - minY + 1);
-            cowBox.Location = new Point(
-                cow.GetPos().X + puzzleBox.Location.X - cowXOffset,
-                cow.GetPos().Y + puzzleBox.Location.Y - cowYOffset);
-            return true;
-        }
 
         private void BubbleSort(int king)
         {

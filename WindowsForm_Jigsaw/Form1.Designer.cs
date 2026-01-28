@@ -30,11 +30,9 @@
         {
             this.cowBorder = new System.Windows.Forms.PictureBox();
             this.puzzleBox = new System.Windows.Forms.PictureBox();
-            this.cowBox = new System.Windows.Forms.PictureBox();
             this.statusMessage = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.cowBorder)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.puzzleBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cowBox)).BeginInit();
             this.SuspendLayout();
             // 
             // cowBorder
@@ -61,15 +59,6 @@
             this.puzzleBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.puzzleBox_MouseMove);
             this.puzzleBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.puzzleBox_MouseUp);
             // 
-            // cowBox
-            // 
-            this.cowBox.Location = new System.Drawing.Point(560, 407);
-            this.cowBox.Name = "cowBox";
-            this.cowBox.Size = new System.Drawing.Size(103, 91);
-            this.cowBox.TabIndex = 1;
-            this.cowBox.TabStop = false;
-            this.cowBox.Visible = false;
-            // 
             // statusMessage
             // 
             this.statusMessage.Location = new System.Drawing.Point(287, 624);
@@ -85,7 +74,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1315, 944);
             this.Controls.Add(this.statusMessage);
-            this.Controls.Add(this.cowBox);
             this.Controls.Add(this.cowBorder);
             this.Controls.Add(this.puzzleBox);
             this.Name = "Form1";
@@ -94,7 +82,6 @@
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             ((System.ComponentModel.ISupportInitialize)(this.cowBorder)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.puzzleBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cowBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -103,7 +90,6 @@
         #endregion
 
         private System.Windows.Forms.PictureBox puzzleBox;
-        private System.Windows.Forms.PictureBox cowBox;
         private System.Windows.Forms.PictureBox cowBorder;
         private System.Windows.Forms.TextBox statusMessage;
     }

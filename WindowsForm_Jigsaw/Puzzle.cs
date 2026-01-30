@@ -17,8 +17,8 @@ namespace WindowsForm_Jigsaw
         // of the image
         int x; // number of pieces wide
         int y; // number of pieces tall
-        int width;
-        int height;
+        int width;   // width of the solution in pixels
+        int height; // height of the solution in pixels
         string imagePath;
         Piece[] pieces;
         Bitmap image;
@@ -316,6 +316,13 @@ namespace WindowsForm_Jigsaw
             int cowHeight = height * (1 + maxY - minY) / y;
 
             return new Size(cowWidth, cowHeight);
+        }
+
+        public Point GetImageCoordinates(Piece piece)
+        {
+            int xCoordinate = width  * piece.GetX() / x;
+            int yCoordinate = height * piece.GetY() / y;
+            return new Point(xCoordinate, yCoordinate);
         }
     }
 }

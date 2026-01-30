@@ -117,24 +117,51 @@ Everything works! The only problem is when I drag things around, it's messy.
 I wonder if I can fix that...
 
 
-1/28 1:46-?:??
+1/28 1:46-2:14
 The jitter gets worse the more pieces are stitched together.
+Added you win text, the hard part will be making it good.
 
 
+1/29 5:45-6:46
+Researching how to make an image mask.
+There's a response with four points on this thread that seems promising.
+https://stackoverflow.com/questions/17772991/create-image-mask
+Found a link to something called opacity masking that is supposed to take advantage
+of hardware acceleration
+https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.drawinggroup.opacitymask?view=windowsdesktop-10.0&redirectedfrom=MSDN#System_Windows_Media_DrawingGroup_OpacityMask
+looong looong liiiink!
+Someone mentioned something here about unsafe but fast code, and then someone said Marhsall.copy makes it safe.
+https://stackoverflow.com/questions/3654220/alpha-masking-in-c-sharp-system-drawing
+there's another comment in the above one that might be exactly what I'm looking for
+this one mentions that's its faster to access width/height from BitmapData than Bitmap directly.
+https://stackoverflow.com/questions/7433508/c-sharp-bitmap-image-masking-using-unsafe-code
+I saved a PDF of an archive of a webpage explaining Region and Exclude, which might help me.
+I could exclude a smaller square from a larger square, exclude four small circles at each edge
+from the larger square, and then exclude THAT from the image for the piece. To make a knob
+into a socket, do one last exclude on the otherwise finished product.
+
+
+1/30 1:06-1:54
+Experimenting with Region.Exclude
+I'm getting really weird errors, and I don't know why.
+
+
+1/30 9:07-?:?? 7hr21min down, 4hr39min remaining
 
 
 
 TODO LIST:
-Expand cow
-Non-rectangular pieces
-Thank Amanda for not being avoidant
-But also are you mad at me? Still not planning wedding?
+*Non-rectangular pieces
+*Saving/loading
+*Detected win, (and disable movement?)
+*Bring back border?
 
 LONG TERM:
-the canvas Bitmap I have created could possibly be masked as a way to efficiently move
+*the canvas Bitmap I have created could possibly be masked as a way to efficiently move
 conglomorates around
-If nothing else works, I could crop the pieces too large, and overlay them with a hollow
+*If nothing else works, I could crop the pieces too large, and overlay them with a hollow
 white shell of a piece with a transparent center, then make the white part transparent again.
+*Snap to invisible grid of destiny?
 
 
 

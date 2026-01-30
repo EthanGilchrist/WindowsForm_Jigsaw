@@ -12,29 +12,19 @@ namespace WindowsForm_Jigsaw
 {
     class Piece : PictureBox
     {
-        // every piece should know where it lives
-        // I could also store the identities of its neighbors,
-        // but I think this will be easier for iterating over the set
-        // of all pieces during snap detection. Maybe.
-        // Maybe I should do both?
         int x;
         int y;
         Bitmap imageMap;
-        //Point pos;
         public bool northbound;
         public bool southbound;
         public bool eastbound;
         public bool westbound;
         int groupID; // this is for convienience, and slight performance gains
-        //Puzzle parent; // is this allowed?
         // does a piece need to know if it is an edge?
 
 
         // eventually I'm going to want to suggest dimensions to avoid
         // overly elongated pieces.
-        // eventually don't bother with initializing with coords,
-        // I'll just randomize their locations in a single method
-        // when the time comes
         public Piece(Bitmap image, int x, int y, int posX = 0, int posY = 0)
         {
             this.Image = image; // not confusing at all

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,8 +25,8 @@ namespace WindowsForm_Jigsaw
         const string backgroundFile = "images/blank_600_1200.png";
         const int borderThickness = 2;
         // these two won't always be const, but for now they are
-        const int x = 4;
-        const int y = 5;
+        const int x = 3;
+        const int y = 4;
 
         Bitmap background;
         byte[] photoBytes;
@@ -39,6 +40,9 @@ namespace WindowsForm_Jigsaw
         Point mouseOffset;
         int cowXOffset;
         int cowYOffset;
+
+        bool gTest = false;
+        bool gTestb = false;
 
         public Form1()
         {
@@ -137,21 +141,28 @@ namespace WindowsForm_Jigsaw
                 puzzle.GetConglomorates()[cow.GetGroupID()].CopyTo(pieces);
                 foreach (Piece piece in pieces)
                 {
+                    piece.BringToFront();
                     if (piece != cow)
                         Snap(piece); // it can't be that easy
                 }
+                if (puzzle.GetConglomorates()[cow.GetGroupID()].Count() == puzzle.GetPiecesCount())
+                {
+                    statusMessage.Visible = true;
+                    statusMessage.Text = "You win!";
+                }
             } // it's that easy
 
-            //RenderPuzzle();
             cow.Visible = true;
-            //cowBox.Visible = false;
-            //cowBox.SendToBack();
             cowBorder.SendToBack();
-            statusMessage.Text = cow.GetPos().ToString();
+            //statusMessage.Text = cow.GetPos().ToString();
         }
 
+        // this method might be really stupid now that Piece can send it
+        // maybe I should unbind mousedown on puzzlebox and assume
+        // that a piece called this method
         public void puzzleBox_MouseDown(object sender, MouseEventArgs e)
         {
+
             if (selectedPiece)
             {
                 throw new Exception("User clicked, but a piece was already selected!");
@@ -400,14 +411,92 @@ namespace WindowsForm_Jigsaw
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             // I might need to write code in here to make the cow transparent?
-            // this might be the wrong place to right it?
+            // this might be the wrong place to write it?
             // maybe anything here will execute WITH the default code
             // rather than REPLACING it?
+            if (!gTest) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
+            {
+                gTest = true;
+                Graphics g = e.Graphics; // wat
+                Piece guineaPig = puzzle.GetPieces()[4];
+                Size oldSize = guineaPig.Size;
+                Size newSize = new Size(oldSize.Width + 20, oldSize.Height + 20);
+                Point smallCorner = guineaPig.Location;
+                Rectangle smallRect = new Rectangle(smallCorner, guineaPig.Size);
+                Point largeCorner = new Point(guineaPig.Location.X - 10, guineaPig.Location.Y - 10);
+                Rectangle largeRect = new Rectangle(largeCorner, newSize);
+                Region negative = new Region(largeRect);
+                negative.Exclude(smallRect);
+                Point leftKnobPoint = new Point(
+                    guineaPig.Location.X - 10, 
+                    guineaPig.Location.Y + 10);
+                Rectangle leftKnob = new Rectangle(leftKnobPoint, new Size(20, 20));
+                negative.Exclude(leftKnob);
+                Region r = new Region(largeRect);
+                r.Exclude(negative);
+                // IT EXISTS
+                Rectangle bind = new Rectangle(3, 3, 10, 10);
+                Brush brush;
+                Bitmap image = new Bitmap(puzzleFile); //guineaPig.GetImage(); // it runs now. Dang it.
+                MemoryStream stream = new MemoryStream();
+                BitmapData bitmapData = new BitmapData();
+                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png); // a generic error? what?
+                // I'm starting to think C# has limitations after all.
+                brush = new TextureBrush(Image.FromStream(stream), bind);
+                g.FillRegion(brush, r);
+                stream.Close();
+                puzzle.GetPieces()[4].SendToBack();
+                Brush highlighter = Brushes.Yellow;
+                g.FillRectangle(highlighter, 20, 30, 80, 90);
+                Refresh();
+            }
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
             string testMe = "hi again";
+        }
+
+        private void puzzleBox_Paint(object sender, PaintEventArgs e)
+        { // what if I just paste all of that code over here?
+            if (!gTestb) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
+            {
+                gTestb = true;
+                int buffer = 10;
+                Graphics g = e.Graphics; // wat
+                Piece guineaPig = puzzle.GetPieces()[4];
+                Size oldSize = new Size(guineaPig.Size.Width + 80, guineaPig.Size.Height + 80);
+                Size newSize = new Size(oldSize.Width + 20, oldSize.Height + 20);
+                Point smallCorner = guineaPig.Location;
+                Rectangle smallRect = new Rectangle(smallCorner, oldSize);
+                Point largeCorner = new Point(guineaPig.Location.X - 10, guineaPig.Location.Y - 10);
+                Rectangle largeRect = new Rectangle(largeCorner, newSize);
+                Region negative = new Region(largeRect);
+                negative.Exclude(smallRect);
+                Point leftKnobPoint = new Point(
+                    guineaPig.Location.X - 10,
+                    guineaPig.Location.Y + 20);
+                Rectangle leftKnob = new Rectangle(leftKnobPoint, new Size(20, 40));
+                negative.Exclude(leftKnob);
+                Region r = new Region(largeRect);
+                r.Exclude(negative);
+                Point bindCorner = puzzle.GetImageCoordinates(guineaPig);
+                Rectangle bind = new Rectangle(
+                    bindCorner.X,
+                    bindCorner.Y,
+                    guineaPig.GetImage().Width  + buffer * 2,
+                    guineaPig.GetImage().Height + buffer * 2);
+                Brush brush;
+                Bitmap image = new Bitmap(puzzleFile); //guineaPig.GetImage(); // it runs now. Dang it.
+                // IT EXISTS
+                brush = new TextureBrush(image, bind);
+                g.FillRegion(brush, r); // it finally works! But I made such a mess in the process...
+
+                Piece[] balrogs = puzzle.GetPieces();
+                for (int i = 0; i < balrogs.Length; i++)
+                    balrogs[i].Visible = false;
+                Refresh();
+            }
         }
     }
 }

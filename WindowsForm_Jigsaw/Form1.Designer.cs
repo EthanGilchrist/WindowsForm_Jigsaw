@@ -55,6 +55,7 @@
             this.puzzleBox.TabIndex = 0;
             this.puzzleBox.TabStop = false;
             this.puzzleBox.Click += new System.EventHandler(this.puzzleBox_Click);
+            this.puzzleBox.Paint += new System.Windows.Forms.PaintEventHandler(this.puzzleBox_Paint);
             this.puzzleBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.puzzleBox_MouseDown);
             this.puzzleBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.puzzleBox_MouseMove);
             this.puzzleBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.puzzleBox_MouseUp);

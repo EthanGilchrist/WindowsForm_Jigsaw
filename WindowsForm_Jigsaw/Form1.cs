@@ -12,6 +12,8 @@ using System.Windows.Forms;
 using ImageProcessor;
 using ImageProcessor.Imaging;
 using ImageProcessor.Imaging.Formats;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace WindowsForm_Jigsaw
 {
@@ -436,7 +438,7 @@ namespace WindowsForm_Jigsaw
                 r.Exclude(negative);
                 // IT EXISTS
                 Rectangle bind = new Rectangle(3, 3, 10, 10);
-                Brush brush;
+                System.Drawing.Brush brush;
                 Bitmap image = new Bitmap(puzzleFile); //guineaPig.GetImage(); // it runs now. Dang it.
                 MemoryStream stream = new MemoryStream();
                 BitmapData bitmapData = new BitmapData();
@@ -446,7 +448,7 @@ namespace WindowsForm_Jigsaw
                 g.FillRegion(brush, r);
                 stream.Close();
                 puzzle.GetPieces()[4].SendToBack();
-                Brush highlighter = Brushes.Yellow;
+                System.Drawing.Brush highlighter = System.Drawing.Brushes.Yellow;
                 g.FillRectangle(highlighter, 20, 30, 80, 90);
                 Refresh();
             }
@@ -462,41 +464,102 @@ namespace WindowsForm_Jigsaw
             if (!gTestb) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
             {
                 gTestb = true;
-                int buffer = 10;
+                int buffer = 20;
                 Graphics g = e.Graphics; // wat
                 Piece guineaPig = puzzle.GetPieces()[4];
-                Size oldSize = new Size(guineaPig.Size.Width + 80, guineaPig.Size.Height + 80);
-                Size newSize = new Size(oldSize.Width + 20, oldSize.Height + 20);
+                // well-behaved at 160/142, which equals newSize + buffer
+                // well-behaved at any point such that x and y are buffer more than a multiple
+                // of newSize
+                guineaPig.Location = new Point(160, 264); // comment this after testing
+                Size oldSize = new Size(guineaPig.Size.Width, guineaPig.Size.Height);
+                Size newSize = new Size(oldSize.Width + buffer * 2, oldSize.Height + buffer * 2);
                 Point smallCorner = guineaPig.Location;
                 Rectangle smallRect = new Rectangle(smallCorner, oldSize);
-                Point largeCorner = new Point(guineaPig.Location.X - 10, guineaPig.Location.Y - 10);
+                Point largeCorner = new Point(guineaPig.Location.X - buffer, guineaPig.Location.Y - buffer);
                 Rectangle largeRect = new Rectangle(largeCorner, newSize);
                 Region negative = new Region(largeRect);
                 negative.Exclude(smallRect);
                 Point leftKnobPoint = new Point(
-                    guineaPig.Location.X - 10,
+                    guineaPig.Location.X - buffer,
                     guineaPig.Location.Y + 20);
-                Rectangle leftKnob = new Rectangle(leftKnobPoint, new Size(20, 40));
+                // eventually I want leftKnob to be a circle, hence making it too wide
+                Rectangle leftKnob = new Rectangle(leftKnobPoint, new Size(buffer * 2, buffer * 2));
                 negative.Exclude(leftKnob);
                 Region r = new Region(largeRect);
-                r.Exclude(negative);
+                //r.Exclude(negative);
                 Point bindCorner = puzzle.GetImageCoordinates(guineaPig);
+                // bind should be the same every time
                 Rectangle bind = new Rectangle(
-                    bindCorner.X,
-                    bindCorner.Y,
+                    bindCorner.X - buffer,
+                    bindCorner.Y - buffer,
                     guineaPig.GetImage().Width  + buffer * 2,
                     guineaPig.GetImage().Height + buffer * 2);
-                Brush brush;
+                System.Drawing.Brush brush;
                 Bitmap image = new Bitmap(puzzleFile); //guineaPig.GetImage(); // it runs now. Dang it.
                 // IT EXISTS
                 brush = new TextureBrush(image, bind);
                 g.FillRegion(brush, r); // it finally works! But I made such a mess in the process...
+                System.Threading.Thread.Sleep(1000);
+
+                //ImageDrawing imageDrawing = new ImageDrawing(image, largeRect);
+                //System.Windows.Media.DrawingImage drawingImage = new DrawingImage(1);
+                // I want to split off into a different method, but how would I get the PaintEventArgs?
+                MediaTest(e, guineaPig); // oh right, that's how.
+
 
                 Piece[] balrogs = puzzle.GetPieces();
                 for (int i = 0; i < balrogs.Length; i++)
                     balrogs[i].Visible = false;
                 Refresh();
             }
+        }
+
+        // the mere act of entering this method shrinks the window? what???
+        // I put a call to Thread.Sleep(1000) before anything else and it still shrinks
+        // before any real code has a chance to run.
+        private void MediaTest(PaintEventArgs e, Piece guineaPig)
+        {
+            //
+            // Create the Geometry to draw.
+            //
+            GeometryGroup ellipses = new GeometryGroup();
+            ellipses.Children.Add(
+                new EllipseGeometry(new System.Windows.Point(50, 50), 45, 20)
+                );
+            ellipses.Children.Add(
+                new EllipseGeometry(new System.Windows.Point(50, 50), 20, 45)
+                );
+
+
+            //
+            // Create a GeometryDrawing.
+            //
+            GeometryDrawing aGeometryDrawing = new GeometryDrawing();
+            aGeometryDrawing.Geometry = ellipses;
+
+            // Paint the drawing with a gradient.
+            aGeometryDrawing.Brush =
+                new LinearGradientBrush(
+                    Colors.Blue,
+                    System.Windows.Media.Color.FromRgb(204, 204, 255),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
+
+
+            //
+            // Use a DrawingImage and an Image control
+            // to display the drawing.
+            //
+            DrawingImage geometryImage = new DrawingImage(aGeometryDrawing);
+
+            // Freeze the DrawingImage for performance benefits.
+            geometryImage.Freeze();
+
+            System.Windows.Controls.Image anImage = new System.Windows.Controls.Image();
+            anImage.Source = geometryImage;
+            anImage.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            Graphics g = e.Graphics;
+            //guineaPig.Image = anImage;
         }
     }
 }

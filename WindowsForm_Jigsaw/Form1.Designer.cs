@@ -49,9 +49,9 @@
             // 
             this.puzzleBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.puzzleBox.Image = global::WindowsForm_Jigsaw.Properties.Resources.blank_600_1200;
-            this.puzzleBox.Location = new System.Drawing.Point(12, 150);
+            this.puzzleBox.Location = new System.Drawing.Point(12, 15);
             this.puzzleBox.Name = "puzzleBox";
-            this.puzzleBox.Size = new System.Drawing.Size(1200, 600);
+            this.puzzleBox.Size = new System.Drawing.Size(1200, 900);
             this.puzzleBox.TabIndex = 0;
             this.puzzleBox.TabStop = false;
             this.puzzleBox.Click += new System.EventHandler(this.puzzleBox_Click);
@@ -77,6 +77,7 @@
             this.Controls.Add(this.statusMessage);
             this.Controls.Add(this.cowBorder);
             this.Controls.Add(this.puzzleBox);
+            this.MinimumSize = new System.Drawing.Size(750, 750);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);

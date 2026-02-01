@@ -145,8 +145,29 @@ into a socket, do one last exclude on the otherwise finished product.
 Experimenting with Region.Exclude
 I'm getting really weird errors, and I don't know why.
 
+7hr21min down, 4hr39min remaining
+1/30 9:07-11:52 another 2hr45min down, 1hr54min remaining
+I tried to do stuff with ImageDrawing and DrawingImage because they looked like
+exactly what I needed, but they belong to a completely different kind of project
+called a WPF, and when I made one, it was too different from a Windows Form to be able
+to have any idea what was going on or how to port my code, or even write any code
+of my own at all.
 
-1/30 9:07-?:?? 7hr21min down, 4hr39min remaining
+I just found out that Graphics.FromImage() is a thing. This seems better.
+
+
+1/31 6:06-6:56, 7:03-8:19
+When I call Graphics.FromImage() on Piece.GetImage(), and draw on it, the image sticks!
+Drawing methods can't escape the original size of the piece. A gray zone extends the piece
+to the south, and to the east, but nothing gets drawn in it, even when I change the rectangle
+declaration to have a "+ 50" in the width and height fields.
+The gray zone can occlude other pieces.
+Defining g as being Graphics.FromImage() anew after changing the size has no effect.
+I'll shrimply have to make the pieces larger from the beginning. Has to happen to every piece
+every time eventually anyway, right?
+
+Ok! Making the pieces bigger has caused its own issues, but nothing I can't handle... eventually.
+The program is back into a stable, albiet less functional, state.
 
 
 

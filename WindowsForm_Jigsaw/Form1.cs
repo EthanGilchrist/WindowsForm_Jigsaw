@@ -12,23 +12,23 @@ using System.Windows.Forms;
 using ImageProcessor;
 using ImageProcessor.Imaging;
 using ImageProcessor.Imaging.Formats;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace WindowsForm_Jigsaw
 {
     public partial class Form1: Form
     {
+        #region fields
         // how many pixels away from your target can you be, and still
         // have the pieces snap to each other?
         // this should be dynamic later; more leniant with larger pieces
         const int tolerance = 25;
-        const string puzzleFile = "images/snakeglasses4.png";
+        const int buffer = 30;
+        const string puzzleFile = "images/3by5grid.png";
         const string backgroundFile = "images/blank_600_1200.png";
         const int borderThickness = 2;
         // these two won't always be const, but for now they are
-        const int x = 3;
-        const int y = 4;
+        const int x = 5;
+        const int y = 3;
 
         Bitmap background;
         byte[] photoBytes;
@@ -40,8 +40,7 @@ namespace WindowsForm_Jigsaw
         Piece cow;
         Point ranch;
         Point mouseOffset;
-        int cowXOffset;
-        int cowYOffset;
+        #endregion
 
         bool gTest = false;
         bool gTestb = false;
@@ -49,7 +48,7 @@ namespace WindowsForm_Jigsaw
         public Form1()
         {
             InitializeComponent();
-            puzzle = new Puzzle(puzzleFile, x, y, puzzleBox);
+            puzzle = new Puzzle(puzzleFile, x, y, puzzleBox, buffer);
             background = new Bitmap(backgroundFile);
             rand = new Random();
             selectedPiece = false;
@@ -159,12 +158,35 @@ namespace WindowsForm_Jigsaw
             //statusMessage.Text = cow.GetPos().ToString();
         }
 
+        private void FromGraphicsTest(Piece piece)
+        {
+            piece.BringToFront();
+            Graphics g = Graphics.FromImage(piece.GetImage());
+            Brush brush = Brushes.Green;        // comment after testing
+            g.FillRectangle(brush, 3, 4, 5, 6); // comment after testing
+
+            Point bindCorner = puzzle.GetImageCoordinates(piece);
+            Rectangle bind = new Rectangle(
+                    bindCorner.X - buffer,
+                    bindCorner.Y - buffer,
+                    piece.GetImage().Width + buffer * 2,
+                    piece.GetImage().Height + buffer * 2);
+            Bitmap image = new Bitmap(puzzleFile);
+            brush = new TextureBrush(image, bind);
+            piece.Size = new Size(piece.GetImage().Width + buffer * 2, piece.GetImage().Height + buffer * 2);
+            piece.Width = piece.Size.Width;
+            piece.Height = piece.Size.Height; // this should do nothing... It did. I'm sad I was right.
+            
+            Rectangle rect = new Rectangle(0, 0 , piece.Size.Width + 5, piece.Size.Height + 5);
+            g.FillRectangle(brush, rect);
+        }
+
         // this method might be really stupid now that Piece can send it
         // maybe I should unbind mousedown on puzzlebox and assume
         // that a piece called this method
         public void puzzleBox_MouseDown(object sender, MouseEventArgs e)
         {
-
+            //FromGraphicsTest(puzzle.GetPieces()[7]);
             if (selectedPiece)
             {
                 throw new Exception("User clicked, but a piece was already selected!");
@@ -271,7 +293,7 @@ namespace WindowsForm_Jigsaw
                 buddyIndex = bullIndex - x;
                 buddyPos = puzzle.GetPieces()[buddyIndex].GetPos();
                 // define a point directly below the piece that will snap to the North edge.
-                target = new Point(buddyPos.X, buddyPos.Y + puzzle.GetPieces()[buddyIndex].GetImage().Height);
+                target = new Point(buddyPos.X, buddyPos.Y + puzzle.GetPieces()[buddyIndex].Height);
                 if (Distance(bullPos, target) < tolerance)
                 {
                     dx = target.X - ranch.X;
@@ -289,7 +311,7 @@ namespace WindowsForm_Jigsaw
             {
                 buddyIndex = bullIndex + 1;
                 buddyPos = puzzle.GetPieces()[buddyIndex].GetPos();
-                target = new Point(buddyPos.X - puzzle.GetPieces()[buddyIndex].GetImage().Width, buddyPos.Y);
+                target = new Point(buddyPos.X - bull.Width, buddyPos.Y);
                 if (Distance(bullPos, target) < tolerance)
                 {
                     dx = target.X - ranch.X;
@@ -307,7 +329,7 @@ namespace WindowsForm_Jigsaw
             {
                 buddyIndex = bullIndex + x;
                 buddyPos = puzzle.GetPieces()[buddyIndex].GetPos();
-                target = new Point(buddyPos.X, buddyPos.Y - puzzle.GetPieces()[buddyIndex].GetImage().Height);
+                target = new Point(buddyPos.X, buddyPos.Y - bull.Height);
                 if (Distance(bullPos, target) < tolerance)
                 {
                     dx = target.X - ranch.X;
@@ -325,7 +347,7 @@ namespace WindowsForm_Jigsaw
             {
                 buddyIndex = bullIndex - 1;
                 buddyPos = puzzle.GetPieces()[buddyIndex].GetPos();
-                target = new Point(buddyPos.X + puzzle.GetPieces()[buddyIndex].GetImage().Width, buddyPos.Y);
+                target = new Point(buddyPos.X + puzzle.GetPieces()[buddyIndex].Width, buddyPos.Y);
                 if (Distance(bullPos, target) < tolerance)
                 {
                     dx = target.X - ranch.X;
@@ -416,7 +438,8 @@ namespace WindowsForm_Jigsaw
             // this might be the wrong place to write it?
             // maybe anything here will execute WITH the default code
             // rather than REPLACING it?
-            if (!gTest) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
+            if (false)//!gTest) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
+                // consider yourself cancelled.
             {
                 gTest = true;
                 Graphics g = e.Graphics; // wat
@@ -461,10 +484,9 @@ namespace WindowsForm_Jigsaw
 
         private void puzzleBox_Paint(object sender, PaintEventArgs e)
         { // what if I just paste all of that code over here?
-            if (!gTestb) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
-            {
+            if (false)//!gTestb) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
+            {   // test over
                 gTestb = true;
-                int buffer = 20;
                 Graphics g = e.Graphics; // wat
                 Piece guineaPig = puzzle.GetPieces()[4];
                 // well-behaved at 160/142, which equals newSize + buffer
@@ -494,72 +516,17 @@ namespace WindowsForm_Jigsaw
                     bindCorner.Y - buffer,
                     guineaPig.GetImage().Width  + buffer * 2,
                     guineaPig.GetImage().Height + buffer * 2);
-                System.Drawing.Brush brush;
+                Brush brush;
                 Bitmap image = new Bitmap(puzzleFile); //guineaPig.GetImage(); // it runs now. Dang it.
                 // IT EXISTS
                 brush = new TextureBrush(image, bind);
                 g.FillRegion(brush, r); // it finally works! But I made such a mess in the process...
-                System.Threading.Thread.Sleep(1000);
-
-                //ImageDrawing imageDrawing = new ImageDrawing(image, largeRect);
-                //System.Windows.Media.DrawingImage drawingImage = new DrawingImage(1);
-                // I want to split off into a different method, but how would I get the PaintEventArgs?
-                MediaTest(e, guineaPig); // oh right, that's how.
-
 
                 Piece[] balrogs = puzzle.GetPieces();
                 for (int i = 0; i < balrogs.Length; i++)
-                    balrogs[i].Visible = false;
+                    ;// balrogs[i].Visible = false;
                 Refresh();
             }
-        }
-
-        // the mere act of entering this method shrinks the window? what???
-        // I put a call to Thread.Sleep(1000) before anything else and it still shrinks
-        // before any real code has a chance to run.
-        private void MediaTest(PaintEventArgs e, Piece guineaPig)
-        {
-            //
-            // Create the Geometry to draw.
-            //
-            GeometryGroup ellipses = new GeometryGroup();
-            ellipses.Children.Add(
-                new EllipseGeometry(new System.Windows.Point(50, 50), 45, 20)
-                );
-            ellipses.Children.Add(
-                new EllipseGeometry(new System.Windows.Point(50, 50), 20, 45)
-                );
-
-
-            //
-            // Create a GeometryDrawing.
-            //
-            GeometryDrawing aGeometryDrawing = new GeometryDrawing();
-            aGeometryDrawing.Geometry = ellipses;
-
-            // Paint the drawing with a gradient.
-            aGeometryDrawing.Brush =
-                new LinearGradientBrush(
-                    Colors.Blue,
-                    System.Windows.Media.Color.FromRgb(204, 204, 255),
-                    new System.Windows.Point(0, 0),
-                    new System.Windows.Point(1, 1));
-
-
-            //
-            // Use a DrawingImage and an Image control
-            // to display the drawing.
-            //
-            DrawingImage geometryImage = new DrawingImage(aGeometryDrawing);
-
-            // Freeze the DrawingImage for performance benefits.
-            geometryImage.Freeze();
-
-            System.Windows.Controls.Image anImage = new System.Windows.Controls.Image();
-            anImage.Source = geometryImage;
-            anImage.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-            Graphics g = e.Graphics;
-            //guineaPig.Image = anImage;
         }
     }
 }

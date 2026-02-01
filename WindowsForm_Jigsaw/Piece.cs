@@ -51,12 +51,13 @@ namespace WindowsForm_Jigsaw
             // for moving the pieces directly.
         }
 
-        // I think I need to fake this???
-        public void ClickEvent()
+        public void DrawTest()
         {
-
+            Graphics g = Graphics.FromImage(Image);
+            // are you serious
         }
 
+        #region ain't broke
         public void Piece_MouseDown(object sender, MouseEventArgs e)
         {
             // ok it's actually working. I can make every piece have a click event, but...
@@ -159,6 +160,7 @@ namespace WindowsForm_Jigsaw
         {
             groupID = newGroupID;
         }
+        #endregion
     }
 
 }

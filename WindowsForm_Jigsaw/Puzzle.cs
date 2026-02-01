@@ -24,7 +24,7 @@ namespace WindowsForm_Jigsaw
         Bitmap image;
         List<List<Piece>> conglomorates;
 
-        public Puzzle(string imagePath, int x, int y, Control puzzleBox)
+        public Puzzle(string imagePath, int x, int y, Control puzzleBox, int buffer)
         {
             this.pieces = new Piece[x * y];
             this.imagePath = imagePath;
@@ -33,7 +33,7 @@ namespace WindowsForm_Jigsaw
             this.width = image.Width;
             this.x = x;
             this.y = y;
-            Shatter(imagePath, puzzleBox);
+            Shatter(imagePath, puzzleBox, buffer);
             // bro I spent so long trying to understand what I needed to initialize
             // to make the null reference exceptions go away, and it was that the
             // entire meta-list was unitialized this whole time?
@@ -224,22 +224,45 @@ namespace WindowsForm_Jigsaw
             // to-another nonsense.
         }
 
-        private void Shatter(string imagePath, Control parent)
+        private void Shatter(string imagePath, Control parent, int buffer)
         {
             // break an image into individual pieces
 
             byte[] photoBytes = File.ReadAllBytes(imagePath);
-            ISupportedImageFormat format = new JpegFormat { Quality = 80 };
+            ISupportedImageFormat format = new JpegFormat { Quality = 90 };
             int temperWidth = image.Width / x;
             int temperHeight = image.Height / y;
             int tempWidth = temperWidth;
             int tempHeight = temperHeight;
+            int northBuffer;
+            int eastBuffer;
+            int southBuffer;
+            int westBuffer;
             for (int i = 0; i < x * y; i++)
             {
                 // what are x and y on each call?
                 // x starts at 0 and wraps around when y increments,
                 // which is every 1 in this.y calls
 
+
+                // determine how to pad pieces to make room for knobs, while avoiding
+                // exceptions from trying to crop outside the puzzle image.
+                // I guess I could have just wrapped all puzzle images in borders, but
+                // that's lame.
+                northBuffer = buffer;
+                eastBuffer = buffer;
+                southBuffer = buffer;
+                westBuffer = buffer;
+
+                if (i < x)
+                    northBuffer = 0;
+                if (i % x == x - 1)
+                    eastBuffer = 0;
+                if (i >= x * y - x) // is this right?
+                    southBuffer = 0;
+                if (i % x == 0)
+                    westBuffer = 0;
+                
                 
                 // this saves two division operations per loop.
                 // is that substantial? no. But it's optimal.
@@ -269,15 +292,15 @@ namespace WindowsForm_Jigsaw
                             // and higher piece counts
                             factory.Load(inStream)
                                    .Crop(new Rectangle(
-                                       width * (i % x) / x, // distance from left
-                                       height * (i / x) / y, // distance from top
-                                       tempWidth, // width of piece
-                                       tempHeight)) // height of piece
+                                       width * (i % x) / x - westBuffer, // distance from left
+                                       height * (i / x) / y - northBuffer, // distance from top
+                                       tempWidth + westBuffer + eastBuffer, // width of piece
+                                       tempHeight + northBuffer + southBuffer)) // height of piece
                                    .Format(format)
                                    .Save(outStream);
                         }
                         pieces[i] = new Piece(new Bitmap(outStream), i % x, i / x);
-                        pieces[i].MouseDown += new System.Windows.Forms.MouseEventHandler(pieces[i].Piece_MouseDown);
+                        pieces[i].MouseDown += new MouseEventHandler(pieces[i].Piece_MouseDown);
                         pieces[i].MouseUp += new MouseEventHandler(pieces[i].Piece_MouseUp);
                         pieces[i].MouseMove += new MouseEventHandler(pieces[i].Piece_MouseMove);
                         // is that allowed?
@@ -285,7 +308,6 @@ namespace WindowsForm_Jigsaw
                     }
                 }
             }
-
         }
 
         public Size CowSize(Piece cow)

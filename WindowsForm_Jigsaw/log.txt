@@ -5,9 +5,13 @@ Decided to make a jigsaw puzzle game.
 
 snakeglasses2.jpg is 500 wide/550 high
 
+
+
 1.5 hour of class+after class 1/12/2026
 Installed ImageProcessor, documentation at:
 https://jimbobsquarepants.github.io/ImageProcessor/imageprocessor/imagefactory/
+
+
 
 1/14/2026 12:13pm-12:37pm, 3:15pm-5:52pm, 6:26pm-7:09pm, total 224 minutes/3hr44min
 Idea: do as little in the form as possible. Process everything underneath; the form will never need
@@ -24,7 +28,11 @@ Ideas for handling mouse input:
 	Click and hold to drag piece.
 In any case, I don't need to refresh continually, only when the mouse moves or clicks.
 
+
+
 1/15/2026 11:17am-12:42pm, 2 minute break, 1hr23min
+
+
 
 1/16/2026 11:31pm-1:13am, 1:20am-ish (amish??) to 2:20am, 1hr42min total, 1.7hr
 Three problems to solve:
@@ -40,6 +48,8 @@ New problem: when snapping two groups together, the cow snaps without its herd,
 breaking the alignment. I need to tempt twice??
 TODO: Fix snapping
 
+
+
 total time so far: 8.76
 time remaining: 3.24 hours, or 3hr14min. PI? What are you doing here?
 1/17/2026 10:21am-10:31am, 12:58pm-1:58pm, 2hr4min to go, 2:33-4:37
@@ -51,6 +61,7 @@ Nope! After thinking about this for what feels like an hour, I just needed to re
 after every direction does its thing.
 Bug detected! When combining group A into group B, the pieces in A are told they are in group B,
 right before A gets deleted and B becomes A. I think I fixed it by clearing A instead of deleting it.
+
 
 
 1/24/2026 12:00am-2:50am
@@ -86,10 +97,12 @@ may be the bottleneck here. I might have to refactor this to work with puzzle pi
 are all individual objects.
 
 
+
 1/26 3:46-4:11
 I need to consider not using a windows form anymore, because the transparancy issue
 is pretty bad. Especially because, once this isn't just a novelty, the standard strategy
 is to start by building the frame.
+
 
 
 1/27 5:05-6:54
@@ -117,9 +130,11 @@ Everything works! The only problem is when I drag things around, it's messy.
 I wonder if I can fix that...
 
 
+
 1/28 1:46-2:14
 The jitter gets worse the more pieces are stitched together.
 Added you win text, the hard part will be making it good.
+
 
 
 1/29 5:45-6:46
@@ -141,6 +156,7 @@ from the larger square, and then exclude THAT from the image for the piece. To m
 into a socket, do one last exclude on the otherwise finished product.
 
 
+
 1/30 1:06-1:54
 Experimenting with Region.Exclude
 I'm getting really weird errors, and I don't know why.
@@ -156,6 +172,7 @@ of my own at all.
 I just found out that Graphics.FromImage() is a thing. This seems better.
 
 
+
 1/31 6:06-6:56, 7:03-8:19
 When I call Graphics.FromImage() on Piece.GetImage(), and draw on it, the image sticks!
 Drawing methods can't escape the original size of the piece. A gray zone extends the piece
@@ -169,6 +186,22 @@ every time eventually anyway, right?
 Ok! Making the pieces bigger has caused its own issues, but nothing I can't handle... eventually.
 The program is back into a stable, albiet less functional, state.
 
+
+
+2/6 9:15-?:??
+Ok, enough procrastinating for one week.
+Bug discovered: dragging piece A and snapping it to piece B brings it to front
+visually but not in click order priority.
+I feel like I can't read my own code anymore.
+Bug reduced to: clicking passes right through the bottom and right buffers of non-edge pieces.
+I need to make the pieces small again. The size of the buffer should ONLY be considered part of
+the size of the piece, when:
+1. cropping the source image, and,
+2. applying the source image to the piece
+but I think I need to stop rendering the buffers first, or else this will be a lot less inuitive to debug.
+
+I took some time to organize my methods. They are divided into five regions, with a
+sixth region to collapse the constructor and field names.
 
 
 TODO LIST:

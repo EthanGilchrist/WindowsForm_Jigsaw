@@ -51,10 +51,49 @@ namespace WindowsForm_Jigsaw
             // for moving the pieces directly.
         }
 
-        public void DrawTest()
+        public void DrawTest(int buffer)
         {
             Graphics g = Graphics.FromImage(Image);
             // are you serious
+            Rectangle bigRect = new Rectangle(Location, Size);
+            Rectangle smallRect = new Rectangle(Location.X + buffer, Location.Y + buffer,
+                Size.Width - buffer * 2, Size.Height - buffer * 2);
+            Region negative = new Region(bigRect);
+            negative.Exclude(smallRect);
+            TextureBrush brush = GetTextureBrush(this);
+            // cover my bases...
+            Brush clear = Brushes.Transparent;
+            Brush white = Brushes.White;
+            Brush black = Brushes.Black;
+            Brush red = Brushes.Red;
+
+            g.FillRegion(red, new Region(bigRect));
+            g.FillRegion(brush, negative);
+            g.FillRectangle(white, smallRect);
+            // this is compiling, but nothing is happening.
+            // wait a second.
+            g.FillRectangle(black, 2, 3, 4, 5);
+            // THAT'S WHY!
+            // this.Location gives the position within the board, but it needs to be 0,0 instead.
+            // fortunately, that's really easy to change, but I'm going to commit the code
+            // in this state for historical purposes.
+        }
+
+        static TextureBrush GetTextureBrush(Piece piece)
+        {
+            // why did I isolate this method? Because it's the bad part, so I need to
+            // be able to focus in as hard as I can.
+            Bitmap bitmap = new Bitmap(piece.GetImage());
+            return new TextureBrush(bitmap);
+
+            // I split:
+            // return new TextureBrush(piece.GetImage());
+            //
+            // into:
+            // Bitmap bitmap = new Bitmap(piece.GetImage());
+            // return new TextureBrush(bitmap);
+            //
+            // and it runs now. I'm livid.
         }
 
         #region ain't broke

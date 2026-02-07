@@ -17,7 +17,7 @@ namespace WindowsForm_Jigsaw
 {
     public partial class Form1: Form
     {
-        #region fields
+        #region Fields & Initialization
         // how many pixels away from your target can you be, and still
         // have the pieces snap to each other?
         // this should be dynamic later; more leniant with larger pieces
@@ -40,10 +40,6 @@ namespace WindowsForm_Jigsaw
         Piece cow;
         Point ranch;
         Point mouseOffset;
-        #endregion
-
-        bool gTest = false;
-        bool gTestb = false;
 
         public Form1()
         {
@@ -62,64 +58,9 @@ namespace WindowsForm_Jigsaw
             //TestSetup();
             //RenderPuzzle();
         }
+        #endregion
 
-        private void MovePieces()
-        {
-            int xMax = puzzleBox.Width - puzzle.GetImage().Width / x;
-            int yMax = puzzleBox.Height - puzzle.GetImage().Height / y;
-            for (int i = 0; i < puzzle.GetPieces().Count(); i++)
-            {
-                puzzle.GetPieces()[i].SetPos(rand.Next(xMax), rand.Next(yMax));
-            }
-        }
-
-        private void RenderPuzzle(Piece skipMe = null)
-        {
-            photoBytes = File.ReadAllBytes(backgroundFile);
-            ISupportedImageFormat format = new PngFormat();
-            ImageLayer layer = new ImageLayer();
-            layer.Opacity = 100;
-            layer.Position = new Point(0, 0);
-            using (MemoryStream inStream = new MemoryStream(photoBytes))
-            {
-                using (MemoryStream outStream = new MemoryStream())
-                {
-                    using (ImageFactory factory = new ImageFactory())
-                    {
-                        factory.Load(inStream);
-                        for (int i = 0; i < puzzle.GetPieces().Count(); i++)
-                        {
-                            layer.Image = puzzle.GetPieces()[prioritizer[i]].GetImage();
-                            layer.Position = puzzle.GetPieces()[prioritizer[i]].GetPos();
-                            // this if statement will probably margianally
-                            // slow down this loop, but given that it now only needs
-                            // to run on mousedown and mouseup, it really doesn't
-                            // matter at all.
-                            if (skipMe != puzzle.GetPieces()[prioritizer[i]])
-                            //if (skipMe != puzzle.GetPieces()[prioritizer[i]] &&
-                            //    skipMe.GetGroupID() != puzzle.GetPieces()[prioritizer[i]].GetGroupID())
-                            {
-                                if (skipMe == null || skipMe.GetGroupID() == -1)
-                                    factory.Overlay(layer);
-                                else if (skipMe.GetGroupID() != puzzle.GetPieces()[prioritizer[i]].GetGroupID())
-                                    factory.Overlay(layer);
-                            }
-                        }
-                        factory.Format(format).Save(outStream);
-                    }
-                    // do something
-                    puzzleBox.Image = new Bitmap(outStream);
-                }
-            }
-        }
-
-        private void puzzleBox_Click(object sender, EventArgs e)
-        {
-            // the internet says Click events aren't sent until
-            // after MouseDown/MouseUp, so this event handler is only here
-            // in case I decide that drag-and-drop was a mistake
-        }
-
+        #region Bread & Butter
         public void puzzleBox_MouseUp(object sender, MouseEventArgs e)
         {
             // put down the piece we were holding, if any
@@ -127,7 +68,7 @@ namespace WindowsForm_Jigsaw
                 // This is normal and will happen every time the background is clicked
                 return;
             selectedPiece = false;
-
+            cow.DrawTest(buffer);
             // did we just move a group? This will take care of that.
             int dx = cow.GetPos().X - ranch.X;
             int dy = cow.GetPos().Y - ranch.Y;
@@ -137,6 +78,12 @@ namespace WindowsForm_Jigsaw
 
             if (cow.GetGroupID() != -1)
             {
+                // this for loop was originally written for MouseDown, but it also needs to run here. One or the other isn't enough, I checked.
+                for (int j = 0; cow.GetGroupID() != -1 && j < puzzle.GetConglomorates()[cow.GetGroupID()].Count(); j++)
+                {
+                    BubbleSort(puzzle.GetIndex(puzzle.GetConglomorates()[cow.GetGroupID()][j]));
+                    puzzle.GetConglomorates()[cow.GetGroupID()][j].BringToFront();
+                }
                 int piecesSize = puzzle.GetConglomorates()[cow.GetGroupID()].Count();
                 Piece[] pieces = new Piece[piecesSize];
                 puzzle.GetConglomorates()[cow.GetGroupID()].CopyTo(pieces);
@@ -157,35 +104,13 @@ namespace WindowsForm_Jigsaw
             cowBorder.SendToBack();
             //statusMessage.Text = cow.GetPos().ToString();
         }
-
-        private void FromGraphicsTest(Piece piece)
-        {
-            piece.BringToFront();
-            Graphics g = Graphics.FromImage(piece.GetImage());
-            Brush brush = Brushes.Green;        // comment after testing
-            g.FillRectangle(brush, 3, 4, 5, 6); // comment after testing
-
-            Point bindCorner = puzzle.GetImageCoordinates(piece);
-            Rectangle bind = new Rectangle(
-                    bindCorner.X - buffer,
-                    bindCorner.Y - buffer,
-                    piece.GetImage().Width + buffer * 2,
-                    piece.GetImage().Height + buffer * 2);
-            Bitmap image = new Bitmap(puzzleFile);
-            brush = new TextureBrush(image, bind);
-            piece.Size = new Size(piece.GetImage().Width + buffer * 2, piece.GetImage().Height + buffer * 2);
-            piece.Width = piece.Size.Width;
-            piece.Height = piece.Size.Height; // this should do nothing... It did. I'm sad I was right.
-            
-            Rectangle rect = new Rectangle(0, 0 , piece.Size.Width + 5, piece.Size.Height + 5);
-            g.FillRectangle(brush, rect);
-        }
-
-        // this method might be really stupid now that Piece can send it
-        // maybe I should unbind mousedown on puzzlebox and assume
-        // that a piece called this method
+        
         public void puzzleBox_MouseDown(object sender, MouseEventArgs e)
         {
+            // This method might be really stupid now that Piece can send it.
+            // Maybe I should unbind mousedown on puzzlebox and assume
+            // that a piece called this method.
+
             //FromGraphicsTest(puzzle.GetPieces()[7]);
             if (selectedPiece)
             {
@@ -227,32 +152,6 @@ namespace WindowsForm_Jigsaw
                     mouseOffset = new Point(e.X - pos.X, e.Y - pos.Y);
                 }
             }
-
-            //if (selectedPiece)
-            //{
-            //    //RenderPuzzle(cow);
-            //    cow.Visible = false;
-            //    cowBox.Visible = true;
-            //    if (!PrepareCanvas())
-            //    {   // PrepareCanvas() does this automatically, if it returns true
-            //        cowBox.Image = cow.GetImage();     
-            //        cowBox.Location = new Point(  
-            //            cow.GetPos().X + puzzleBox.Location.X,
-            //            cow.GetPos().Y + puzzleBox.Location.Y);
-            //        cowBox.Size = cow.GetImage().Size;
-            //    }
-            //    cowBorder.BringToFront(); // bring border to front FIRST!
-            //    cowBox.BringToFront();
-            //    // activate the cow border
-            //    cowBorder.Visible = true;
-            //    cowBorder.Location = new Point(
-            //        cowBox.Location.X - borderThickness,
-            //        cowBox.Location.Y - borderThickness);
-            //    cowBorder.Size = new Size(
-            //        cowBox.Width  + borderThickness * 2, 
-            //        cowBox.Height + borderThickness * 2);
-            //}
-
             if (selectedPiece) ranch = cow.Location;
         }
 
@@ -358,25 +257,34 @@ namespace WindowsForm_Jigsaw
                 }
             }
         }
+        #endregion
 
-        private int Distance(Point a, Point b)
+        #region Experimental
+        private void FromGraphicsTest(Piece piece)
         {
-            int dx = a.X - b.X;
-            int dy = a.Y - b.Y;
-            dx *= dx;
-            dy *= dy;
-            return (int)Math.Sqrt(dx + dy);
+            piece.BringToFront();
+            Graphics g = Graphics.FromImage(piece.GetImage());
+            Brush brush = Brushes.Green;        // comment after testing
+            g.FillRectangle(brush, 3, 4, 5, 6); // comment after testing
+
+            Point bindCorner = puzzle.GetImageCoordinates(piece);
+            Rectangle bind = new Rectangle(
+                    bindCorner.X - buffer,
+                    bindCorner.Y - buffer,
+                    piece.GetImage().Width + buffer * 2,
+                    piece.GetImage().Height + buffer * 2);
+            Bitmap image = new Bitmap(puzzleFile);
+            brush = new TextureBrush(image, bind);
+            piece.Size = new Size(piece.GetImage().Width + buffer * 2, piece.GetImage().Height + buffer * 2);
+            piece.Width = piece.Size.Width;
+            piece.Height = piece.Size.Height; // this should do nothing... It did. I'm sad I was right.
+            
+            Rectangle rect = new Rectangle(0, 0 , piece.Size.Width + 5, piece.Size.Height + 5);
+            g.FillRectangle(brush, rect);
         }
+        #endregion
 
-        private void InitializeDictionary()
-        {
-            for (int i = 0; i < puzzle.GetPiecesCount(); i++)
-            {
-                prioritizer.Add(i, i); // (captain!)
-            }
-        }
-
-
+        #region Reliable (subject to change)
         private void BubbleSort(int king)
         {
             // when the user clicks a piece, it needs to render last.
@@ -409,29 +317,46 @@ namespace WindowsForm_Jigsaw
             // making prioritizer a dictionary was overkill, huh?
         }
 
-        public void TestSetup()
+        #endregion
+
+        #region Reliable and also tiny
+        private int Distance(Point a, Point b)
         {
-            statusMessage.Visible = true;
+            int dx = a.X - b.X;
+            int dy = a.Y - b.Y;
+            dx *= dx;
+            dy *= dy;
+            return (int)Math.Sqrt(dx + dy);
+        }
+        private void InitializeDictionary()
+        {
             for (int i = 0; i < puzzle.GetPiecesCount(); i++)
             {
-                puzzle.GetPieces()[i].SetPos(
-                    rand.Next(650) + 150, 
-                    rand.Next(150) + 150);
+                prioritizer.Add(i, i); // (captain!)
             }
-            // does calling SetPos work... *through* GetPieces()?
-            // is this still the same under the hood as when it was
-            // puzzle.pieces[0].pos = new Point(5, 5));?
-            puzzle.GetPieces()[0].SetPos(5, 5);
-            puzzle.GetPieces()[1].SetPos(85, 5);
-            puzzle.GetPieces()[2].SetPos(165, 5);
-            puzzle.GetPieces()[5].SetPos(85, 85);
         }
+        private void MovePieces()
+        {
+            int xMax = puzzleBox.Width - puzzle.GetImage().Width / x;
+            int yMax = puzzleBox.Height - puzzle.GetImage().Height / y;
+            for (int i = 0; i < puzzle.GetPieces().Count(); i++)
+            {
+                puzzle.GetPieces()[i].SetPos(rand.Next(xMax), rand.Next(yMax));
+                puzzle.GetPieces()[i].BringToFront();
+                BubbleSort(i);
+            }
+        }
+        #endregion
 
+        #region Unused code
         private void cowBox_Paint(object sender, PaintEventArgs e)
         {
 
         }
-
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            string testMe = "hi again";
+        }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             // I might need to write code in here to make the cow transparent?
@@ -441,7 +366,7 @@ namespace WindowsForm_Jigsaw
             if (false)//!gTest) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
                 // consider yourself cancelled.
             {
-                gTest = true;
+                //gTest = true;
                 Graphics g = e.Graphics; // wat
                 Piece guineaPig = puzzle.GetPieces()[4];
                 Size oldSize = guineaPig.Size;
@@ -476,17 +401,18 @@ namespace WindowsForm_Jigsaw
                 Refresh();
             }
         }
-
-        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        private void puzzleBox_Click(object sender, EventArgs e)
         {
-            string testMe = "hi again";
+            // the internet says Click events aren't sent until
+            // after MouseDown/MouseUp, so this event handler is only here
+            // in case I decide that drag-and-drop was a mistake
         }
-
         private void puzzleBox_Paint(object sender, PaintEventArgs e)
         { // what if I just paste all of that code over here?
-            if (false)//!gTestb) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
+            if (false)
+            //if (!gTestb) //!(puzzle is null) && !(puzzle.GetPieces() is null) && 
             {   // test over
-                gTestb = true;
+                //gTestb = true;
                 Graphics g = e.Graphics; // wat
                 Piece guineaPig = puzzle.GetPieces()[4];
                 // well-behaved at 160/142, which equals newSize + buffer
@@ -528,5 +454,62 @@ namespace WindowsForm_Jigsaw
                 Refresh();
             }
         }
+        private void RenderPuzzle(Piece skipMe = null)
+        {
+            photoBytes = File.ReadAllBytes(backgroundFile);
+            ISupportedImageFormat format = new PngFormat();
+            ImageLayer layer = new ImageLayer();
+            layer.Opacity = 100;
+            layer.Position = new Point(0, 0);
+            using (MemoryStream inStream = new MemoryStream(photoBytes))
+            {
+                using (MemoryStream outStream = new MemoryStream())
+                {
+                    using (ImageFactory factory = new ImageFactory())
+                    {
+                        factory.Load(inStream);
+                        for (int i = 0; i < puzzle.GetPieces().Count(); i++)
+                        {
+                            layer.Image = puzzle.GetPieces()[prioritizer[i]].GetImage();
+                            layer.Position = puzzle.GetPieces()[prioritizer[i]].GetPos();
+                            // this if statement will probably margianally
+                            // slow down this loop, but given that it now only needs
+                            // to run on mousedown and mouseup, it really doesn't
+                            // matter at all.
+                            if (skipMe != puzzle.GetPieces()[prioritizer[i]])
+                            //if (skipMe != puzzle.GetPieces()[prioritizer[i]] &&
+                            //    skipMe.GetGroupID() != puzzle.GetPieces()[prioritizer[i]].GetGroupID())
+                            {
+                                if (skipMe == null || skipMe.GetGroupID() == -1)
+                                    factory.Overlay(layer);
+                                else if (skipMe.GetGroupID() != puzzle.GetPieces()[prioritizer[i]].GetGroupID())
+                                    factory.Overlay(layer);
+                            }
+                        }
+                        factory.Format(format).Save(outStream);
+                    }
+                    // do something
+                    puzzleBox.Image = new Bitmap(outStream);
+                }
+            }
+        }
+        public void TestSetup()
+        {
+            statusMessage.Visible = true;
+            for (int i = 0; i < puzzle.GetPiecesCount(); i++)
+            {
+                puzzle.GetPieces()[i].SetPos(
+                    rand.Next(650) + 150, 
+                    rand.Next(150) + 150);
+            }
+            // does calling SetPos work... *through* GetPieces()?
+            // is this still the same under the hood as when it was
+            // puzzle.pieces[0].pos = new Point(5, 5));?
+            puzzle.GetPieces()[0].SetPos(5, 5);
+            puzzle.GetPieces()[1].SetPos(85, 5);
+            puzzle.GetPieces()[2].SetPos(165, 5);
+            puzzle.GetPieces()[5].SetPos(85, 85);
+        }
+        #endregion
     }
 }

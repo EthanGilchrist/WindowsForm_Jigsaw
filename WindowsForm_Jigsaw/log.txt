@@ -188,7 +188,7 @@ The program is back into a stable, albiet less functional, state.
 
 
 
-2/6 9:15-11:43
+2/6 9:15-11:43 2hr28min
 Ok, enough procrastinating for one week.
 Bug discovered: dragging piece A and snapping it to piece B brings it to front
 visually but not in click order priority.
@@ -210,10 +210,17 @@ black instead. Partial transparency becomes no transparency, like cutting out a 
 glass and expecting it to still be transparent.
 
 
-2/10 10:13-?:??
+2/10 10:13-12:17 2hr4min, total 4hr32min
 What have I done? I just threw away three hours I could have spent working on this.
 Anyway, I'm going to try bringing in a natively transparent image to make sure I notice
 if I'm getting close to writing code that actually works.
+
+I overrode the paint method, and left out the stuff that looked like it was probably important, because it was full of
+references to private fields, and it ran perfectly fine, but it also didn't work any differently. I commented out the
+sole reference to the other experimental paint method, I tested the backgrounds to make sure FillRegion wasn't
+filling the whole rectangle, I tried g.Clear(Colors.Transparent) and it was black again, nothing is working. I think
+I might genuinely need to abandon non-square pieces, because I'm all out of things to try to make transparency work, other
+than that one technique I found early on that was prohibitively slow.
 
 
 TODO LIST:

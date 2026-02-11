@@ -1,12 +1,13 @@
-﻿using System;
+﻿using ImageProcessor;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
-using ImageProcessor;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace WindowsForm_Jigsaw
 {
@@ -52,61 +53,6 @@ namespace WindowsForm_Jigsaw
             // for moving the pieces directly.
         }
 
-        public void DrawTest(int buffer)
-        {
-            Graphics g = Graphics.FromImage(Image);
-            // are you serious
-            Point origin = new Point(0, 0);
-            Rectangle bigRect = new Rectangle(origin, Size);
-            int sillyInt = 25; // delete this when it's time to stop being silly. Or set it to zero if you can't commit.
-            // note that including "origin.X + " in the line below is completely useless.
-            // I include it because I think it's more readable this way.
-            Rectangle smallRect = new Rectangle(
-                origin.X + buffer + sillyInt, 
-                origin.Y + buffer + sillyInt,
-                Size.Width - buffer * 2 - sillyInt * 2, 
-                Size.Height - buffer * 2 - sillyInt * 2);
-            Region negative = new Region(bigRect);
-            negative.Exclude(smallRect);
-            TextureBrush brush = GetTextureBrush(this);
-            // cover my bases...
-            Brush clear = Brushes.Transparent;
-            Brush white = Brushes.White;
-            Brush black = Brushes.Black;
-            Brush red = Brushes.Red;
-
-            g.Clear(Color.FromArgb(240, 255, 255, 255));
-            //g.FillRegion(clear, new Region(bigRect));
-            g.FillRegion(brush, negative);
-        }
-
-        static TextureBrush GetTextureBrush(Piece piece)
-        {
-            // why did I isolate this method? Because it's the bad part, so I need to
-            // be able to focus in as hard as I can.
-            Bitmap bitmap = new Bitmap(piece.GetImage());
-            return new TextureBrush(bitmap);
-
-            // I split:
-            // return new TextureBrush(piece.GetImage());
-            //
-            // into:
-            // Bitmap bitmap = new Bitmap(piece.GetImage());
-            // return new TextureBrush(bitmap);
-            //
-            // and it runs now. I'm livid.
-        }
-
-        public void Piece_Paint(object sender, PaintEventArgs e)
-        {
-            // do not forget to make this not be a magic number at the end of this.
-            DrawTest(30);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-        }
 
         #region ain't broke
         public void Piece_MouseDown(object sender, MouseEventArgs e)

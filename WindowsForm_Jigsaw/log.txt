@@ -222,6 +222,29 @@ filling the whole rectangle, I tried g.Clear(Colors.Transparent) and it was blac
 I might genuinely need to abandon non-square pieces, because I'm all out of things to try to make transparency work, other
 than that one technique I found early on that was prohibitively slow.
 
+After a long phone call with my dad, I've decided that I have the following options:
+1a. Abaondon puzzle pieces that are actually shaped like puzzle pieces, focus on other features
+1b. Learn to live with the really slow method that is currently commented out on lines 54 and 55 of Form1.cs
+1c. Have pieces that are shaped like puzzle pieces, but just... aren't transparent
+2. Migrate to WPF for more powerful features like OpacityMask
+3. Migrate to typescript and make this thing work online
+1a and 3 seem the most appealing to me. I want this project to help me in my career path, and I can
+accomplish that by:
+1a. Specializing now in what I want to be specialized in in my career, focused on backend, math-y stuff, not the idiosyncrises of how Windows handles graphics
+2. Learn how to do WPF and broaden my C# abilities
+3. Make something that actually looks good and is easy to share with other people, notably including potential employers
+
+1a would be the obvious choice except that I'm not sure that the remaining things I want to implement are
+actually relevant to what I would need to know in my ideal job. I'm personally invested enough that
+I want this thing to actually look good, and actually look like a jigsaw puzzle, and I'm certain
+it's possible with Typescript.
+Side note: Dad said Typescript is a superset of Javascript, meaning that any Javascript code is also
+valid Typescript code, but not vica versa.
+Plus, I want to learn JavaScript at some point regardless. Even if I don't plan on ever touching
+a website again, it just feels like one of those things that a programmer ought to know.
+However, 1a feels more in-line for a classroom setting. I don't know for sure that I'll still
+get credit for making negative progress if I switch to JS. Better mention this situation to the professor.
+
 
 TODO LIST:
 *Non-rectangular pieces

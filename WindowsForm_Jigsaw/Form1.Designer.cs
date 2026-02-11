@@ -31,6 +31,7 @@
             this.cowBorder = new System.Windows.Forms.PictureBox();
             this.puzzleBox = new System.Windows.Forms.PictureBox();
             this.statusMessage = new System.Windows.Forms.TextBox();
+            this.imageLoadButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.cowBorder)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.puzzleBox)).BeginInit();
             this.SuspendLayout();
@@ -67,11 +68,22 @@
             this.statusMessage.Text = "lorem ipsum";
             this.statusMessage.Visible = false;
             // 
+            // imageLoadButton
+            // 
+            this.imageLoadButton.Location = new System.Drawing.Point(1226, 25);
+            this.imageLoadButton.Name = "imageLoadButton";
+            this.imageLoadButton.Size = new System.Drawing.Size(77, 55);
+            this.imageLoadButton.TabIndex = 4;
+            this.imageLoadButton.Text = "Load Image";
+            this.imageLoadButton.UseVisualStyleBackColor = true;
+            this.imageLoadButton.Click += new System.EventHandler(this.imageLoadButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1315, 944);
+            this.Controls.Add(this.imageLoadButton);
             this.Controls.Add(this.statusMessage);
             this.Controls.Add(this.cowBorder);
             this.Controls.Add(this.puzzleBox);
@@ -90,6 +102,7 @@
         private System.Windows.Forms.PictureBox puzzleBox;
         private System.Windows.Forms.PictureBox cowBorder;
         private System.Windows.Forms.TextBox statusMessage;
+        private System.Windows.Forms.Button imageLoadButton;
     }
 }
 

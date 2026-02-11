@@ -320,5 +320,17 @@ namespace WindowsForm_Jigsaw
             }
         }
         #endregion
+
+        private void imageLoadButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.ShowDialog();
+            string test = dialog.FileName;
+            using (StreamWriter sr = new StreamWriter("autolog.txt", true))
+            {
+                sr.WriteLine(test);
+            }
+            int foo = 0;
+        }
     }
 }

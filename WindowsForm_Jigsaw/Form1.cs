@@ -57,6 +57,9 @@ namespace WindowsForm_Jigsaw
             MovePieces();
             //TestSetup();
             //RenderPuzzle();
+
+            kepler.Image = new Bitmap("images/elephant.png");
+            kepler.Size = kepler.Image.Size;
         }
         #endregion
 
@@ -68,7 +71,8 @@ namespace WindowsForm_Jigsaw
                 // This is normal and will happen every time the background is clicked
                 return;
             selectedPiece = false;
-            cow.DrawTest(buffer);
+            //cow.DrawTest(buffer);
+            //Refresh();
             // did we just move a group? This will take care of that.
             int dx = cow.GetPos().X - ranch.X;
             int dy = cow.GetPos().Y - ranch.Y;

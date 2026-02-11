@@ -28,6 +28,7 @@ namespace WindowsForm_Jigsaw
         public Piece(Bitmap image, int x, int y, int posX = 0, int posY = 0)
         {
             this.Image = image; // not confusing at all
+            // but what if... I were to... *not* do that?
             imageMap = image;
             this.x = x;
             this.y = y;
@@ -55,9 +56,16 @@ namespace WindowsForm_Jigsaw
         {
             Graphics g = Graphics.FromImage(Image);
             // are you serious
-            Rectangle bigRect = new Rectangle(Location, Size);
-            Rectangle smallRect = new Rectangle(Location.X + buffer, Location.Y + buffer,
-                Size.Width - buffer * 2, Size.Height - buffer * 2);
+            Point origin = new Point(0, 0);
+            Rectangle bigRect = new Rectangle(origin, Size);
+            int sillyInt = 25; // delete this when it's time to stop being silly. Or set it to zero if you can't commit.
+            // note that including "origin.X + " in the line below is completely useless.
+            // I include it because I think it's more readable this way.
+            Rectangle smallRect = new Rectangle(
+                origin.X + buffer + sillyInt, 
+                origin.Y + buffer + sillyInt,
+                Size.Width - buffer * 2 - sillyInt * 2, 
+                Size.Height - buffer * 2 - sillyInt * 2);
             Region negative = new Region(bigRect);
             negative.Exclude(smallRect);
             TextureBrush brush = GetTextureBrush(this);
@@ -67,16 +75,9 @@ namespace WindowsForm_Jigsaw
             Brush black = Brushes.Black;
             Brush red = Brushes.Red;
 
-            g.FillRegion(red, new Region(bigRect));
+            g.Clear(Color.FromArgb(240, 255, 255, 255));
+            //g.FillRegion(clear, new Region(bigRect));
             g.FillRegion(brush, negative);
-            g.FillRectangle(white, smallRect);
-            // this is compiling, but nothing is happening.
-            // wait a second.
-            g.FillRectangle(black, 2, 3, 4, 5);
-            // THAT'S WHY!
-            // this.Location gives the position within the board, but it needs to be 0,0 instead.
-            // fortunately, that's really easy to change, but I'm going to commit the code
-            // in this state for historical purposes.
         }
 
         static TextureBrush GetTextureBrush(Piece piece)
@@ -94,6 +95,17 @@ namespace WindowsForm_Jigsaw
             // return new TextureBrush(bitmap);
             //
             // and it runs now. I'm livid.
+        }
+
+        public void Piece_Paint(object sender, PaintEventArgs e)
+        {
+            // do not forget to make this not be a magic number at the end of this.
+            DrawTest(30);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
         }
 
         #region ain't broke

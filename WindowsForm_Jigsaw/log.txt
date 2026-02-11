@@ -188,7 +188,7 @@ The program is back into a stable, albiet less functional, state.
 
 
 
-2/6 9:15-?:??
+2/6 9:15-11:43
 Ok, enough procrastinating for one week.
 Bug discovered: dragging piece A and snapping it to piece B brings it to front
 visually but not in click order priority.
@@ -202,6 +202,18 @@ but I think I need to stop rendering the buffers first, or else this will be a l
 
 I took some time to organize my methods. They are divided into five regions, with a
 sixth region to collapse the constructor and field names.
+
+I can now draw a region onto a puzzle piece, but no matter what I do to try to make it transparent,
+it turns black instead. I don't get it. I think that the imagebox.Paint() method refuses to see
+imagebox as anything other than a rectangle, so when it paints it, anything undefined becomes
+black instead. Partial transparency becomes no transparency, like cutting out a photograph of
+glass and expecting it to still be transparent.
+
+
+2/10 10:13-?:??
+What have I done? I just threw away three hours I could have spent working on this.
+Anyway, I'm going to try bringing in a natively transparent image to make sure I notice
+if I'm getting close to writing code that actually works.
 
 
 TODO LIST:

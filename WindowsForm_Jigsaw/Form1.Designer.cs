@@ -31,8 +31,10 @@
             this.cowBorder = new System.Windows.Forms.PictureBox();
             this.puzzleBox = new System.Windows.Forms.PictureBox();
             this.statusMessage = new System.Windows.Forms.TextBox();
+            this.kepler = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.cowBorder)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.puzzleBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.kepler)).BeginInit();
             this.SuspendLayout();
             // 
             // cowBorder
@@ -69,11 +71,20 @@
             this.statusMessage.Text = "lorem ipsum";
             this.statusMessage.Visible = false;
             // 
+            // kepler
+            // 
+            this.kepler.Location = new System.Drawing.Point(227, 159);
+            this.kepler.Name = "kepler";
+            this.kepler.Size = new System.Drawing.Size(223, 211);
+            this.kepler.TabIndex = 4;
+            this.kepler.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1315, 944);
+            this.Controls.Add(this.kepler);
             this.Controls.Add(this.statusMessage);
             this.Controls.Add(this.cowBorder);
             this.Controls.Add(this.puzzleBox);
@@ -84,6 +95,7 @@
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             ((System.ComponentModel.ISupportInitialize)(this.cowBorder)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.puzzleBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.kepler)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -94,6 +106,7 @@
         private System.Windows.Forms.PictureBox puzzleBox;
         private System.Windows.Forms.PictureBox cowBorder;
         private System.Windows.Forms.TextBox statusMessage;
+        private System.Windows.Forms.PictureBox kepler;
     }
 }
 

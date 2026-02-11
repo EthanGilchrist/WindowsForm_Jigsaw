@@ -303,6 +303,7 @@ namespace WindowsForm_Jigsaw
                         pieces[i].MouseDown += new MouseEventHandler(pieces[i].Piece_MouseDown);
                         pieces[i].MouseUp += new MouseEventHandler(pieces[i].Piece_MouseUp);
                         pieces[i].MouseMove += new MouseEventHandler(pieces[i].Piece_MouseMove);
+                        pieces[i].Paint += new PaintEventHandler(pieces[i].Piece_Paint);
                         // is that allowed?
                         parent.Controls.Add(pieces[i]);
                     }

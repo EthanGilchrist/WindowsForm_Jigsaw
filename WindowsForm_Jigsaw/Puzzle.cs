@@ -19,21 +19,35 @@ namespace WindowsForm_Jigsaw
         int y; // number of pieces tall
         int width;   // width of the solution in pixels
         int height; // height of the solution in pixels
+        int scaleFactor; // divide the dimensions of large images into something smaller
         string imagePath;
         Piece[] pieces;
         Bitmap image;
         List<List<Piece>> conglomorates;
 
-        public Puzzle(string imagePath, int x, int y, Control puzzleBox, int buffer)
+        public Puzzle(string imagePath, int x, int y, Control puzzleBox)
         {
             this.pieces = new Piece[x * y];
             this.imagePath = imagePath;
             image = new Bitmap(imagePath);
+            int judgeWidth = image.Width;
+            int judgeHeight = image.Height;
+            scaleFactor = 1;
+            while (judgeWidth > 600 || judgeHeight > 600)
+            {
+                scaleFactor++;
+                judgeWidth = image.Width / scaleFactor;
+                judgeHeight = image.Height / scaleFactor;
+            }
+
+            if (scaleFactor != 1) // don't bother if not scaled
+                image = new Bitmap(image, image.Width / scaleFactor, image.Height / scaleFactor);
+
             this.height = image.Height;
             this.width = image.Width;
             this.x = x;
             this.y = y;
-            Shatter(imagePath, puzzleBox, buffer);
+            Shatter(imagePath, puzzleBox);
             // bro I spent so long trying to understand what I needed to initialize
             // to make the null reference exceptions go away, and it was that the
             // entire meta-list was unitialized this whole time?
@@ -213,7 +227,7 @@ namespace WindowsForm_Jigsaw
             // mmmmmmm
         }
 
-        private void Shatter(string imagePath, Control parent, int buffer)
+        private void Shatter(string imagePath, Control parent)
         {
             // break an image into individual pieces
 
@@ -256,6 +270,7 @@ namespace WindowsForm_Jigsaw
                             // not crashes. This gets less trivial at lower resolutions
                             // and higher piece counts
                             factory.Load(inStream)
+                                   .Resize(new Size(image.Width, image.Height))
                                    .Crop(new Rectangle(
                                        width * (i % x) / x, // distance from left
                                        height * (i / x) / y, // distance from top
@@ -309,6 +324,21 @@ namespace WindowsForm_Jigsaw
             int xCoordinate = width  * piece.GetX() / x;
             int yCoordinate = height * piece.GetY() / y;
             return new Point(xCoordinate, yCoordinate);
+        }
+
+        public void Kill(Control puzzleBox)
+        {
+            foreach (Piece piece in pieces)
+            {
+                puzzleBox.Controls.Remove(piece);
+                piece.Dispose();
+            }
+            foreach (List<Piece> conglomorate in conglomorates)
+            {
+                conglomorate.Clear();
+            }
+            conglomorates.Clear();
+            image.Dispose();
         }
     }
 }

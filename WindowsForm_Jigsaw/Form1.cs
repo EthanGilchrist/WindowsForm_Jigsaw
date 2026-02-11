@@ -44,7 +44,7 @@ namespace WindowsForm_Jigsaw
         public Form1()
         {
             InitializeComponent();
-            puzzle = new Puzzle(puzzleFile, x, y, puzzleBox, buffer);
+            puzzle = new Puzzle(puzzleFile, x, y, puzzleBox);
             background = new Bitmap(backgroundFile);
             rand = new Random();
             selectedPiece = false;
@@ -96,12 +96,12 @@ namespace WindowsForm_Jigsaw
                 {
                     statusMessage.Visible = true;
                     statusMessage.Text = "You win!";
+                    statusMessage.Width = statusMessage.Text.Length * 10;
                 }
             } // it's that easy
 
             cow.Visible = true;
             cowBorder.SendToBack();
-            //statusMessage.Text = cow.GetPos().ToString();
         }
         
         public void puzzleBox_MouseDown(object sender, MouseEventArgs e)
@@ -324,13 +324,20 @@ namespace WindowsForm_Jigsaw
         private void imageLoadButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Images (*.JPG,*.PNG)|*.BMP;*.JPG;*.PNG";
             dialog.ShowDialog();
-            string test = dialog.FileName;
-            using (StreamWriter sr = new StreamWriter("autolog.txt", true))
-            {
-                sr.WriteLine(test);
-            }
-            int foo = 0;
+            puzzle.Kill(this);
+            puzzle = new Puzzle(dialog.FileName, x, y, puzzleBox);
+            prioritizer = new Dictionary<int, int>();
+            InitializeDictionary();
+            MovePieces();
+            statusMessage.Visible = false;
+            //string test = dialog.FileName;
+            //using (StreamWriter sr = new StreamWriter("..\\..\\autolog.txt", true))
+            //{
+            //    sr.WriteLine(test);
+            //    sr.WriteLine("test");
+            //}
         }
     }
 }

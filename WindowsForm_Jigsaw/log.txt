@@ -210,8 +210,8 @@ black instead. Partial transparency becomes no transparency, like cutting out a 
 glass and expecting it to still be transparent.
 
 
-2/10 10:13-12:17 2hr4min, total 4hr32min
-What have I done? I just threw away three hours I could have spent working on this.
+2/10 10:13pm-2:15am 4hr02min, total 6hr30min, hey, that's more than half!
+What have I done? I just threw away three hours I could have spent working on this playing Factorio.
 Anyway, I'm going to try bringing in a natively transparent image to make sure I notice
 if I'm getting close to writing code that actually works.
 
@@ -245,6 +245,25 @@ a website again, it just feels like one of those things that a programmer ought 
 However, 1a feels more in-line for a classroom setting. I don't know for sure that I'll still
 get credit for making negative progress if I switch to JS. Better mention this situation to the professor.
 
+Well, now that I've moved on do doing literally anything else, it's immediately super easy, barely
+an inconvenience. I added a button that opens a file explorer dialog that lets the user pick
+a file. Apparently that whole thing is one big pre-made thing by Microsoft, and it just saves
+what you picked to a string?! That seems too simple to be how it works, and yet...
+There are some methods that validate that the user picked a file that actually exists, but
+the guide I found online also included code to filter the results to only be the extensions
+your code supports, so right now you'd have to enter a bad path on purpose to break anything, I think.
+
+just when I thought I was free, I see this in a stackoverflow thread...
+Graphics.FromImage(background).CompositingMode = System.Drawing.Drawing2D.CompositingMode. // two options here
+
+ignoring that for the sake of my sanity, the rest of this has been outrageously easy.
+
+
+
+NEW TODO LIST: (not that the other one doesn't apply, this is just more immediate)
+*Clean up old puzzle (kill it!)
+*Decide puzzle dimensions or let the user do it
+*Resize image to reasonable number of pixels if too large.
 
 TODO LIST:
 *Non-rectangular pieces

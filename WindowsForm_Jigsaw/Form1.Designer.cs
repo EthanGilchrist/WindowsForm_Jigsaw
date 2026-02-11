@@ -61,7 +61,7 @@
             // 
             // statusMessage
             // 
-            this.statusMessage.Location = new System.Drawing.Point(287, 624);
+            this.statusMessage.Location = new System.Drawing.Point(290, 850);
             this.statusMessage.Name = "statusMessage";
             this.statusMessage.Size = new System.Drawing.Size(643, 26);
             this.statusMessage.TabIndex = 3;
